@@ -17,9 +17,17 @@
   "keywords": [
     "Intl",
     "internalisation",
+    "internalization",
     "purescript"
   ],
   "author": "Marcin Szamotulski",
+  "contributors": [
+    {
+      "name": "toastal",
+      "email": "toastal@protonmail.com",
+      "url": "https://toast.al"
+    }
+  ],
   "license": "MPL-2.0",
   "bugs": {
     "url": "https://github.com/coot/purescript-intl/issues"

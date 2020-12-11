@@ -1,9 +1,9 @@
-# PureScript bindings to Intl - JavaScript Internalisation API
+# PureScript bindings to Intl - JavaScript Internalization/Internalisation API
 
 [![Maintainer: coot](https://img.shields.io/badge/maintainer-coot-lightgrey.svg)](http://github.com/coot)
 [![Documentation](https://pursuit.purescript.org/packages/purescript-intl/badge)](https://pursuit.purescript.org/packages/purescript-intl)
 [![Build Status](https://travis-ci.org/coot/purescript-intl.svg?branch=master)](https://travis-ci.org/coot/purescript-intl)
 
 [Intl](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl)
-is ECMAScript Internalisation API.  This library provides type safe PureScript
-bindings.
+is ECMAScript Internalization/Internalisation API. This library provides type 
+safe PureScript bindings.
