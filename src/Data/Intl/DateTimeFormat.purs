@@ -317,7 +317,7 @@ supportedLocalesOf locales = runFn3 supportedLocalesOfImpl Left Right locales
 foreign import resolvedOptionsImpl :: DateTimeFormat -> Foreign
 
 resolvedOptions :: DateTimeFormat -> F ResolvedOptions
-resolvedOptions fmt = do
+resolvedOptions fmt = ado
   locale <- obj ! "locale" >>= readString
   calendar <- obj ! "calendar" >>= readString
   numberingSystem <- obj ! "numberingSystem" >>= readString
@@ -331,7 +331,7 @@ resolvedOptions fmt = do
   second <- obj ! "second" >>= readMaybeString
   timeZoneName <- obj ! "timeZoneName" >>= readMaybeString
 
-  pure $ ResolvedOptions { locale, calendar, numberingSystem, timeZone, era, weekday, year, day, hour, minute, second, timeZoneName }
+  in ResolvedOptions { locale, calendar, numberingSystem, timeZone, era, weekday, year, day, hour, minute, second, timeZoneName }
 
   where
     obj = resolvedOptionsImpl fmt
