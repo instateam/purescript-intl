@@ -1,4 +1,4 @@
-module Data.Intl.DateTimeFormat.Class where
+module Intl.DateTimeFormat.Class where
 
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)

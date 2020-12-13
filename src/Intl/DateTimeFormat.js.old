@@ -1,0 +1,22 @@
+/* Date.Intl.DateTimeFormat */
+"use strict";
+
+exports.createImpl = function(locales, opts) {
+  return Intl.DateTimeFormat(locales, opts);
+};
+
+exports.supportedLocalesOfImpl = function(locales, options) {
+  return Intl.DateTimeFormat.supportedLocalesOf(locales, options);
+}
+
+exports.formatImpl = function(date, options, formatter) {
+  return formatter.format(date);
+};
+
+exports.formatToPartsImpl = function(date, options, formatter) {
+  return formatter.formatToParts(date);
+};
+
+exports.resolvedOptionsImpl = function(formatter) {
+  return formatter.resolvedOptions();
+};
