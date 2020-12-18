@@ -7,7 +7,7 @@ module Intl.RelativeTimeFormat
   , SupportedLocalesOfOptions
   , format
   , formatToParts
-  , module Intl.Common.DisplayLength
+  , module Intl.Common.StringDateTimeFormat
   , module Intl.Common.LocaleMatcher
   , module Intl.Common.LocaleTag
   , module Intl.Common.NumericOutput
@@ -17,7 +17,7 @@ module Intl.RelativeTimeFormat
 import Prelude
 import Data.DateTime (DateTime(..))
 import Data.Function.Uncurried (Fn2, Fn3, runFn2, runFn3)
-import Intl.Common.DisplayLength (DisplayLength(..))
+import Intl.Common.StringDateTimeFormat (StringDateTimeFormat(..))
 import Intl.Common.LocaleMatcher (LocaleMatcher(..))
 import Intl.Common.LocaleTag (LocaleTag(..), localesToForeign)
 import Intl.Common.LocaleTag as LocaleTag
@@ -41,7 +41,7 @@ foreign import data RelativeTimeFormat ∷ Type
 type RelativeTimeFormatOptions
   = ( localeMatcher ∷ LocaleMatcher
     , numeric ∷ NumericOutput
-    , style ∷ DisplayLength
+    , style ∷ StringDateTimeFormat
     )
 
 foreign import createImpl ∷ EffectFn2 Foreign Foreign RelativeTimeFormat
@@ -50,9 +50,9 @@ foreign import createImpl ∷ EffectFn2 Foreign Foreign RelativeTimeFormat
 -- | (falling back on subsequent locales) and a `Record` of optional options.
 -- |
 -- | ```purescript
--- | import Intl.Common.DisplayLength as DisplayLength
+-- | import Intl.Common.StringDateTimeFormat as StringDateTimeFormat
 -- | import Intl.Common.LocaleMatcher as LocaleMatcher
--- | import Intl.Common.LocaleTag (LocaleTag)
+-- | import Intl.Common.LocaleTag (LocaleTag(..))
 -- | import Intl.Common.NumericOutput as NumericOutput
 -- | import Intl.RelativeTimeFormat (RelativeTimeFormat)
 -- | import Intl.RelativeTimeFormat as RelativeTimeFormat
@@ -62,8 +62,8 @@ foreign import createImpl ∷ EffectFn2 Foreign Foreign RelativeTimeFormat
 -- |   RelativeTimeFormat.create
 -- |     [ LocaleTag "en-CA", LocaleTag "en-US", LocaleTag "en" ]
 -- |     { localeMatcher: LocaleMatcher.BestFit
--- |     , numeric ∷ NumericOutput.Always
--- |     , style ∷ DisplayLength.Narrow
+-- |     , numeric: NumericOutput.Always
+-- |     , style: StringDateTimeFormat.Narrow
 -- |     }
 -- | ```
 create ∷
@@ -84,7 +84,7 @@ create localeTags options'' = runEffectFn2 createImpl locales (JSON.write option
     Record
       ( localeMatcher ∷ Maybe LocaleMatcher
       , numeric ∷ Maybe NumericOutput
-      , style ∷ Maybe DisplayLength
+      , style ∷ Maybe StringDateTimeFormat
       )
   options = Option.recordToRecord options'
 
@@ -120,12 +120,28 @@ supportedLocalesOf localeTags options'' = do
 foreign import formatImpl ∷ Fn3 Number Foreign RelativeTimeFormat String
 
 -- | Formats a value and a unit according to the locale and formatting options
--- | of the given `Intl.RelativeTimeFormat` object.
+-- | of the given `Intl.RelativeTimeFormat` object. This is treated as a pure
+-- | function.
+-- | ```purescript
+-- | import Intl.Common.StringDateTimeFormat as StringDateTimeFormat
+-- | import Intl.Common.LocaleTag (LocaleTag(..))
+-- | import.Intl.Common.TimeUnit as TimeUnit
+-- | import Intl.RelativeTimeFormat (create, format)
+-- | import Test (assert)
+-- |
+-- | main ∷ Effect Unit
+-- | main = do
+-- |   formatter ← create [ LocaleTag "en-US" ] { style: StringDateTimeFormat.Narrow }
+-- |   assert $ format (-5.0) TimeUnit.Day formatter == "5 days ago"
+-- |   assert $ format 0.0 TimeUnit.Second formatter == "now"
+-- | ```
 format ∷ Number → TimeUnit → RelativeTimeFormat → String
 format value unit = runFn3 formatImpl value (JSON.write unit)
 
+-- TODO: wrong output
 foreign import formatToPartsImpl ∷ Fn3 Number Foreign RelativeTimeFormat (Array String)
 
+-- TODO: wrong output
 -- | Returns an `Array` of objects representing the relative time format in
 -- | parts that can be used for custom locale-aware formatting.
 formatToParts ∷ Number → TimeUnit → RelativeTimeFormat → Array String
@@ -135,9 +151,9 @@ foreign import resolvedOptionsImpl ∷ EffectFn1 RelativeTimeFormat Foreign
 
 type ResolvedOptions
   = { locale ∷ LocaleTag
-    , style ∷ DisplayLength
+    , style ∷ StringDateTimeFormat
     , numeric ∷ NumericOutput
-    , numberingSystem ∷ String
+    , numberingSystem ∷ String -- TODO
     }
 
 -- | Returns a new object with properties reflecting the locale and formatting

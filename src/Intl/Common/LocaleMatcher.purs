@@ -1,6 +1,8 @@
 module Intl.Common.LocaleMatcher where
 
 import Prelude
+import Data.Generic.Rep (class Generic)
+import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(..))
 import Foreign (F, ForeignError(..), fail, readString)
 import Simple.JSON as JSON
@@ -11,10 +13,10 @@ data LocaleMatcher
 
 derive instance eqLocaleMatcher ∷ Eq LocaleMatcher
 
-instance showLocaleMatcher ∷ Show LocaleMatcher where
-  show = case _ of
-    Lookup → "Lookup"
-    BestFit → "BestFit"
+derive instance genericLocaleMatcher ∷ Generic LocaleMatcher _
+
+instance showLocaleLocaleMatcher ∷ Show LocaleMatcher where
+  show = genericShow
 
 print ∷ LocaleMatcher → String
 print = case _ of
@@ -27,13 +29,13 @@ parse = case _ of
   "best fit" → Just BestFit
   _ → Nothing
 
-instance readForeignDisplayLength ∷ JSON.ReadForeign LocaleMatcher where
+instance readForeignLocaleMatcher ∷ JSON.ReadForeign LocaleMatcher where
   readImpl = parseFromString <=< readString
     where
     parseFromString ∷ String → F LocaleMatcher
     parseFromString s = case parse s of
       Nothing → fail (ForeignError ("Invalid LocaleMatcher representation: " <> s))
-      Just localeMatcher → pure localeMatcher
+      Just localeLocaleMatcher → pure localeLocaleMatcher
 
-instance writeForeignDisplayLength ∷ JSON.WriteForeign LocaleMatcher where
+instance writeForeignLocaleMatcher ∷ JSON.WriteForeign LocaleMatcher where
   writeImpl = JSON.writeImpl <<< print

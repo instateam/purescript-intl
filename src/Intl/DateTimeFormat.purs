@@ -9,20 +9,20 @@ module Intl.DateTimeFormat
   --, formatToParts
   , formatRange
   --, formatRangeToParts
-  , module Intl.Common.DisplayLength
+  , module Intl.Common.Calendar
+  , module Intl.Common.HourCycle
   , module Intl.Common.LocaleTag
+  , module Intl.Common.NumberingSystem
+  , module Intl.Common.NumericDateTimeFormat
+  , module Intl.Common.StringDateTimeFormat
   , module Intl.Common.TimeZone
   ) where
 
 import Prelude
 
 import Data.DateTime (DateTime)
+import Data.Either (Either(..), either)
 import Data.Function.Uncurried (Fn2, Fn3, runFn2, runFn3)
-import Intl.Common.DisplayLength (DisplayLength(..))
-import Intl.Common.LocaleMatcher (LocaleMatcher(..))
-import Intl.Common.LocaleTag (LocaleTag(..), localesToForeign)
-import Intl.Common.LocaleTag as LocaleTag
-import Intl.Common.TimeZone (TimeZone(..))
 import Data.JSDate (JSDate)
 import Data.JSDate as JSDate
 import Data.Maybe (Maybe(..))
@@ -30,9 +30,19 @@ import Data.Newtype (wrap, unwrap)
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn4, runEffectFn1, runEffectFn2, runEffectFn4)
 import Foreign (Foreign)
-import Option (Option, recordFromRecord, recordToRecord)
+import Intl.Common.Calendar (Calendar(..))
+import Intl.Common.HourCycle (HourCycle(..))
+import Intl.Common.LocaleMatcher (LocaleMatcher(..))
+import Intl.Common.LocaleTag (LocaleTag(..), localesToForeign)
+import Intl.Common.LocaleTag as LocaleTag
+import Intl.Common.MonthDateTimeFormat (MonthDateTimeFormat(..))
+import Intl.Common.NumberingSystem (NumberingSystem(..))
+import Intl.Common.NumericDateTimeFormat (NumericDateTimeFormat(..))
+import Intl.Common.StringDateTimeFormat (StringDateTimeFormat(..))
+import Intl.Common.TimeZone (TimeZone(..))
 import Option as Option
-import Prim (kind Type, Array, Boolean, Record, String)
+import Prim (kind Type, Array, Boolean, Int, Record, String)
+import Simple.JSON (class WriteForeign, writeImpl)
 import Simple.JSON as JSON
 
 foreign import data DateTimeFormat ∷ Type
@@ -41,16 +51,26 @@ foreign import data DateTimeFormat ∷ Type
 foreign import createImpl ∷ EffectFn2 Foreign Foreign DateTimeFormat
 
 type DateTimeFormatOptions
-  = ( dateStyle ∷ DisplayLength
-    , timeStyle ∷ DisplayLength
-    , calendar ∷ String -- Calendar
-    , dayPeriod ∷ String -- DayPeriod
-    , numberingSystem ∷ String -- NumeringSystem
+  = ( dateStyle ∷ StringDateTimeFormat
+    , timeStyle ∷ StringDateTimeFormat
+    , calendar ∷ Calendar
+    , dayPeriod ∷ StringDateTimeFormat
+    , numberingSystem ∷ NumberingSystem
     , localeMatcher ∷ LocaleMatcher
     , timeZone ∷ TimeZone
     , hour12 ∷ Boolean
-    , hourCycle ∷ String -- HourCycle
-    , formatMatcher ∷ String -- FormatMatcher
+    , hourCycle ∷ HourCycle
+    , formatMatcher ∷ LocaleMatcher
+    , weekday ∷ StringDateTimeFormat
+    , era ∷ StringDateTimeFormat
+    , year ∷ NumericDateTimeFormat
+    , month ∷ MonthDateTimeFormat
+    , day ∷ NumericDateTimeFormat
+    , hour ∷ NumericDateTimeFormat
+    , minute ∷ NumericDateTimeFormat
+    , second ∷ NumericDateTimeFormat
+    , fractionalSecondDigit ∷ Int
+    -- timeZoneName
     )
 
 create ∷
@@ -67,20 +87,29 @@ create localeTags options'' = runEffectFn2 createImpl locales (JSON.write option
   options' ∷ Option.Record () DateTimeFormatOptions
   options' = Option.recordFromRecord options''
 
-  options ∷ Record
-    ( dateStyle ∷ Maybe DisplayLength
-    , timeStyle ∷ Maybe DisplayLength
-    , calendar ∷ Maybe String -- Calendar
-    , dayPeriod ∷ Maybe String -- DayPeriod
-    , numberingSystem ∷ Maybe String -- NumeringSystem
-    , localeMatcher ∷ Maybe LocaleMatcher
-    , timeZone ∷ Maybe TimeZone
-    , hour12 ∷ Maybe Boolean
-    , hourCycle ∷ Maybe String -- HourCycle
-    , formatMatcher ∷ Maybe String -- FormatMatcher
-    )
+  options ∷
+    Record
+      ( dateStyle ∷ Maybe StringDateTimeFormat
+      , timeStyle ∷ Maybe StringDateTimeFormat
+      , calendar ∷ Maybe Calendar
+      , dayPeriod ∷ Maybe StringDateTimeFormat
+      , numberingSystem ∷ Maybe NumberingSystem
+      , localeMatcher ∷ Maybe LocaleMatcher
+      , timeZone ∷ Maybe TimeZone
+      , hour12 ∷ Maybe Boolean
+      , hourCycle ∷ Maybe HourCycle
+      , formatMatcher ∷ Maybe LocaleMatcher
+      , weekday ∷ Maybe StringDateTimeFormat
+      , era ∷ Maybe StringDateTimeFormat
+      , year ∷ Maybe NumericDateTimeFormat
+      , month ∷ Maybe MonthDateTimeFormat
+      , day ∷ Maybe NumericDateTimeFormat
+      , hour ∷ Maybe NumericDateTimeFormat
+      , minute ∷ Maybe NumericDateTimeFormat
+      , second ∷ Maybe NumericDateTimeFormat
+      , fractionalSecondDigit ∷ Maybe Int
+      )
   options = Option.recordToRecord options'
-
 
 ---- Static methods ------------------------------------------------------------
 foreign import supportedLocalesOfImpl ∷ EffectFn2 (Array String) Foreign (Array String)
@@ -91,6 +120,9 @@ type SupportedLocalesOfOptions
 
 -- | Returns an array containing those of the provided locales that are
 -- | supported without having to fall back to the runtime’s default locale.
+-- | ```purescript
+-- |
+-- | ```
 supportedLocalesOf ∷
   ∀ record.
   Option.FromRecord record () SupportedLocalesOfOptions ⇒
@@ -107,23 +139,26 @@ supportedLocalesOf localeTags options'' = do
   options' ∷ Option.Record () SupportedLocalesOfOptions
   options' = Option.recordFromRecord options''
 
-  options ∷ Record (localeMatcher ∷ Maybe LocaleMatcher )
+  options ∷ Record ( localeMatcher ∷ Maybe LocaleMatcher )
   options = Option.recordToRecord options'
 
 ---- Instance methods ----------------------------------------------------------
 foreign import formatImpl ∷ Fn2 JSDate DateTimeFormat String
 
 -- | Getter function that formats a date according to the locale and formatting
--- | options of this `DateTimeFormat` object.
+-- | options of this `DateTimeFormat` object. This is treated as a pure
+-- | function.
 format ∷ JSDate → DateTimeFormat → String
 format = runFn2 formatImpl
 
 formatDateTime ∷ DateTime → DateTimeFormat → String
 formatDateTime dateTime = format (JSDate.fromDateTime dateTime)
 
+-- TODO: wrong output
 --foreign import formatToPartsImpl ∷ Fn2 JSDate DateTimeFormat (Array String)
 -- | Returns an `Array` of objects representing the date string in parts that
 -- | can be used for custom locale-aware formatting.
+-- TODO: wrong output
 --formatToParts ∷ JSDate → DateTimeFormat → Array String
 --formatToParts = runFn2 formatToPartsImpl
 -- resolvedOptionsImpl
@@ -133,8 +168,8 @@ foreign import formatRangeImpl ∷ Fn3 JSDate JSDate DateTimeFormat String
 -- | This method receives two `JSDate`s and formats the date range in the most
 -- | concise way based on the locale and options provided when instantiating
 -- | `DateTimeFormat`.
-formatRange ∷ JSDate → JSDate → DateTimeFormat → String
-formatRange = runFn3 formatRangeImpl
+formatRange ∷ { start ∷ JSDate, end ∷ JSDate } → DateTimeFormat → String
+formatRange { start, end } = runFn3 formatRangeImpl start end
 
 --formatRangeToPartsImpl ∷ Fn3 JSDate JSDate DateTimeFormat String
 -- | This method receives two `JSDate`s and returns an `Array` of `Record`s

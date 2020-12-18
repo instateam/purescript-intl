@@ -1,8 +1,11 @@
 module Intl.Common.TimeUnit where
 
 import Prelude
+
+import Data.Generic.Rep (class Generic)
+import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(..))
-import Foreign (F, Foreign, ForeignError(..), fail, readString)
+import Foreign (F, ForeignError(..), fail, readString)
 import Simple.JSON as JSON
 
 data TimeUnit
@@ -17,16 +20,10 @@ data TimeUnit
 
 derive instance eqTimeUnit ∷ Eq TimeUnit
 
+derive instance genericTimeUnit ∷ Generic TimeUnit _
+
 instance showTimeUnit ∷ Show TimeUnit where
-  show = case _ of
-    Year → "Year"
-    Quarter → "Quarter"
-    Month → "Month"
-    Week → "Week"
-    Day → "Day"
-    Hour → "Hour"
-    Minute → "Minute"
-    Second → "Second"
+  show = genericShow
 
 print ∷ TimeUnit → String
 print = case _ of
@@ -42,13 +39,21 @@ print = case _ of
 parse ∷ String → Maybe TimeUnit
 parse = case _ of
   "year" → Just Year
+  "years" → Just Year
   "quarter" → Just Quarter
+  "quarters" → Just Quarter
   "month" → Just Month
+  "months" → Just Month
   "week" → Just Week
+  "weeks" → Just Week
   "day" → Just Day
+  "days" → Just Day
   "hour" → Just Hour
+  "hours" → Just Hour
   "minute" → Just Minute
+  "minutes" → Just Minute
   "second" → Just Second
+  "seconds" → Just Second
   _ → Nothing
 
 instance readForeignTimeUnit ∷ JSON.ReadForeign TimeUnit where

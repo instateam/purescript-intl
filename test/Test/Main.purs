@@ -21,6 +21,7 @@ import Intl.DateTimeFormat.Class (class FormatComponent, FormatComponentRecord(.
 import Effect (Effect)
 import Foreign (F, renderForeignError)
 import Partial.Unsafe (unsafeCrashWith, unsafePartial)
+import Test.DateTimeFormat as Test.DateTimeFormat
 import Test.RelativeTimeFormat as Test.RelativeTimeFormat
 
 --newtype EraYear
@@ -52,6 +53,7 @@ import Test.RelativeTimeFormat as Test.RelativeTimeFormat
 --      }
 main ∷ Effect Unit
 main = do
+  Test.DateTimeFormat.main
   Test.RelativeTimeFormat.main
 
 --main' ∷ Effect Unit

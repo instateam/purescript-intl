@@ -1,6 +1,8 @@
 module Intl.Common.NumericOutput where
 
 import Prelude
+import Data.Generic.Rep (class Generic)
+import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(..))
 import Foreign (F, Foreign, ForeignError(..), fail, readString)
 import Simple.JSON as JSON
@@ -11,10 +13,10 @@ data NumericOutput
 
 derive instance eqNumericOutput ∷ Eq NumericOutput
 
+derive instance genericNumericOutput ∷ Generic NumericOutput _
+
 instance showNumericOutput ∷ Show NumericOutput where
-  show = case _ of
-    Always → "Always"
-    Auto → "Auto"
+  show = genericShow
 
 print ∷ NumericOutput → String
 print = case _ of
