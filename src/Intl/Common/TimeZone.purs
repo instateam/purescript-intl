@@ -1,7 +1,10 @@
 module Intl.Common.TimeZone where
 
 import Prelude
+import Data.Generic.Rep (class Generic)
+import Data.Generic.Rep.Show (genericShow)
 import Data.Newtype (class Newtype, unwrap, wrap)
+import Data.Maybe (Maybe(..))
 import Foreign (F, Foreign, ForeignError(..), fail, readString)
 import Simple.JSON as JSON
 
@@ -21,3 +24,36 @@ instance readForeignLocaleTag ∷ JSON.ReadForeign TimeZone where
 
 instance writeForeignLocaleTag ∷ JSON.WriteForeign TimeZone where
   writeImpl = JSON.writeImpl <<< unwrap
+
+data TimeZoneNameFormat
+  = TimeZoneNameLong
+  | TimeZoneNameShort
+
+derive instance eqTimeZoneNameFormat ∷ Eq TimeZoneNameFormat
+
+derive instance genericTimeZoneNameFormate ∷ Generic TimeZoneNameFormat _
+
+instance showTimeZoneNameFormat ∷ Show TimeZoneNameFormat where
+  show = genericShow
+
+print ∷ TimeZoneNameFormat → String
+print = case _ of
+  TimeZoneNameLong → "long"
+  TimeZoneNameShort → "short"
+
+parse ∷ String → Maybe TimeZoneNameFormat
+parse = case _ of
+  "long" → Just TimeZoneNameLong
+  "short" → Just TimeZoneNameShort
+  _ → Nothing
+
+instance readTimeZoneNameFormat ∷ JSON.ReadForeign TimeZoneNameFormat where
+  readImpl = parseFromString <=< readString
+    where
+    parseFromString ∷ String → F TimeZoneNameFormat
+    parseFromString s = case parse s of
+      Nothing → fail (ForeignError ("Invalid TimeZoneNameFormat representation: " <> s))
+      Just calendar → pure calendar
+
+instance writeTimeZoneNameFormat ∷ JSON.WriteForeign TimeZoneNameFormat where
+  writeImpl = JSON.writeImpl <<< print

@@ -39,7 +39,7 @@ import Intl.Common.MonthDateTimeFormat (MonthDateTimeFormat(..))
 import Intl.Common.NumberingSystem (NumberingSystem(..))
 import Intl.Common.NumericDateTimeFormat (NumericDateTimeFormat(..))
 import Intl.Common.StringDateTimeFormat (StringDateTimeFormat(..))
-import Intl.Common.TimeZone (TimeZone(..))
+import Intl.Common.TimeZone (TimeZone(..), TimeZoneNameFormat(..))
 import Option as Option
 import Prim (kind Type, Array, Boolean, Int, Record, String)
 import Simple.JSON (class WriteForeign, writeImpl)
@@ -70,7 +70,7 @@ type DateTimeFormatOptions
     , minute ∷ NumericDateTimeFormat
     , second ∷ NumericDateTimeFormat
     , fractionalSecondDigit ∷ Int
-    -- timeZoneName
+    , timeZoneName ∷ TimeZoneNameFormat
     )
 
 create ∷
@@ -108,6 +108,7 @@ create localeTags options'' = runEffectFn2 createImpl locales (JSON.write option
       , minute ∷ Maybe NumericDateTimeFormat
       , second ∷ Maybe NumericDateTimeFormat
       , fractionalSecondDigit ∷ Maybe Int
+      , timeZoneName ∷ Maybe TimeZoneNameFormat
       )
   options = Option.recordToRecord options'
 
