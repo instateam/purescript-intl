@@ -8,7 +8,7 @@ module Intl.DateTimeFormat
   , format
   , formatToParts
   , formatRange
-  , formatRangeToParts
+  --, formatRangeToParts
   , module Intl.Common.Calendar
   , module Intl.Common.HourCycle
   , module Intl.Common.LocaleTag
@@ -176,13 +176,13 @@ foreign import formatRangeImpl ∷ Fn3 JSDate JSDate DateTimeFormat String
 formatRange ∷ { start ∷ JSDate, end ∷ JSDate } → DateTimeFormat → String
 formatRange { start, end } = runFn3 formatRangeImpl start end
 
-foreign import formatRangeToPartsImpl ∷ Fn3 JSDate JSDate DateTimeFormat Foreign
-
+-- TODO: lacking browsers support + needs a concept for FormattedDateRangeParts
+--foreign import formatRangeToPartsImpl ∷ Fn3 JSDate JSDate DateTimeFormat Foreign
 -- | This method receives two `JSDate`s and returns an `Array` of `Record`s
 -- | containing the locale-specific tokens representing each part of the
 -- | formatted date range.
-formatRangeToParts ∷ JSDate → JSDate → DateTimeFormat → Array FormattedDateParts
-formatRangeToParts startDate endDate =
-  runFn3 formatRangeToPartsImpl startDate endDate
-    >>> JSON.read
-    >>> either (NEL.toUnfoldable >>> map renderForeignError >>> joinWith ", " >>> unsafeCrashWith) identity
+--formatRangeToParts ∷ JSDate → JSDate → DateTimeFormat → Array FormattedDateParts
+--formatRangeToParts startDate endDate =
+--  runFn3 formatRangeToPartsImpl startDate endDate
+--    >>> JSON.read
+--    >>> either (NEL.toUnfoldable >>> map renderForeignError >>> joinWith ", " >>> unsafeCrashWith) identity
