@@ -14,7 +14,7 @@ exports.formatImpl = function(date, formatter) {
 };
 
 exports.formatToPartsImpl = function(date, formatter) {
-  return formatter.formatToPart(date);
+  return formatter.formatToParts(date);
 };
 
 exports.resolvedOptionsImpl = function(formatter) {
@@ -25,6 +25,6 @@ exports.formatRangeImpl = function(startDate, endDate, formatter) {
   return formatter.formatRange(startDate, endDate);
 };
 
-exports.formatRangePartsImpl = function(startDate, endDate, formatter) {
-  return formatter.formatRangeParts(startDate, endDate);
+exports.formatRangeToPartsImpl = function(startDate, endDate, formatter) {
+  return formatter.formatToRangeParts(startDate, endDate);
 };

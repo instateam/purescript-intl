@@ -6,9 +6,9 @@ module Intl.DateTimeFormat
   , supportedLocalesOf
   , SupportedLocalesOfOptions
   , format
-  --, formatToParts
+  , formatToParts
   , formatRange
-  --, formatRangeToParts
+  , formatRangeToParts
   , module Intl.Common.Calendar
   , module Intl.Common.HourCycle
   , module Intl.Common.LocaleTag
@@ -19,18 +19,20 @@ module Intl.DateTimeFormat
   ) where
 
 import Prelude
-
 import Data.DateTime (DateTime)
 import Data.Either (Either(..), either)
 import Data.Function.Uncurried (Fn2, Fn3, runFn2, runFn3)
 import Data.JSDate (JSDate)
 import Data.JSDate as JSDate
+import Data.List.NonEmpty (toUnfoldable) as NEL
 import Data.Maybe (Maybe(..))
 import Data.Newtype (wrap, unwrap)
+import Data.String (joinWith)
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn4, runEffectFn1, runEffectFn2, runEffectFn4)
-import Foreign (Foreign)
+import Foreign (Foreign, renderForeignError)
 import Intl.Common.Calendar (Calendar(..))
+import Intl.Common.FormattedDateParts (FormattedDateParts)
 import Intl.Common.HourCycle (HourCycle(..))
 import Intl.Common.LocaleMatcher (LocaleMatcher(..))
 import Intl.Common.LocaleTag (LocaleTag(..), localesToForeign)
@@ -41,6 +43,7 @@ import Intl.Common.NumericDateTimeFormat (NumericDateTimeFormat(..))
 import Intl.Common.StringDateTimeFormat (StringDateTimeFormat(..))
 import Intl.Common.TimeZone (TimeZone(..), TimeZoneNameFormat(..))
 import Option as Option
+import Partial.Unsafe (unsafeCrashWith)
 import Prim (kind Type, Array, Boolean, Int, Record, String)
 import Simple.JSON (class WriteForeign, writeImpl)
 import Simple.JSON as JSON
@@ -155,13 +158,14 @@ format = runFn2 formatImpl
 formatDateTime ∷ DateTime → DateTimeFormat → String
 formatDateTime dateTime = format (JSDate.fromDateTime dateTime)
 
--- TODO: wrong output
---foreign import formatToPartsImpl ∷ Fn2 JSDate DateTimeFormat (Array String)
--- | Returns an `Array` of objects representing the date string in parts that
--- | can be used for custom locale-aware formatting.
--- TODO: wrong output
---formatToParts ∷ JSDate → DateTimeFormat → Array String
---formatToParts = runFn2 formatToPartsImpl
+foreign import formatToPartsImpl ∷ Fn2 JSDate DateTimeFormat Foreign
+
+formatToParts ∷ JSDate → DateTimeFormat → Array FormattedDateParts
+formatToParts date =
+  runFn2 formatToPartsImpl date
+    >>> JSON.read
+    >>> either (NEL.toUnfoldable >>> map renderForeignError >>> joinWith ", " >>> unsafeCrashWith) identity
+
 -- resolvedOptionsImpl
 -- resolvedOptions
 foreign import formatRangeImpl ∷ Fn3 JSDate JSDate DateTimeFormat String
@@ -172,7 +176,13 @@ foreign import formatRangeImpl ∷ Fn3 JSDate JSDate DateTimeFormat String
 formatRange ∷ { start ∷ JSDate, end ∷ JSDate } → DateTimeFormat → String
 formatRange { start, end } = runFn3 formatRangeImpl start end
 
---formatRangeToPartsImpl ∷ Fn3 JSDate JSDate DateTimeFormat String
+foreign import formatRangeToPartsImpl ∷ Fn3 JSDate JSDate DateTimeFormat Foreign
+
 -- | This method receives two `JSDate`s and returns an `Array` of `Record`s
 -- | containing the locale-specific tokens representing each part of the
 -- | formatted date range.
+formatRangeToParts ∷ JSDate → JSDate → DateTimeFormat → Array FormattedDateParts
+formatRangeToParts startDate endDate =
+  runFn3 formatRangeToPartsImpl startDate endDate
+    >>> JSON.read
+    >>> either (NEL.toUnfoldable >>> map renderForeignError >>> joinWith ", " >>> unsafeCrashWith) identity

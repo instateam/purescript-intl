@@ -19,6 +19,7 @@
   , "psci-support"
   , "simple-json"
   , "strings"
+  , "unsafe-coerce"
   , "variant"
   ]
 , packages = ./packages.dhall

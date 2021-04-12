@@ -9,3 +9,5 @@
 /.psa*
 /.spago
 node_modules/
+
+/.direnv/

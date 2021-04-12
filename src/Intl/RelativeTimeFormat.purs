@@ -16,22 +16,27 @@ module Intl.RelativeTimeFormat
 
 import Prelude
 import Data.DateTime (DateTime(..))
+import Data.Either (either)
 import Data.Function.Uncurried (Fn2, Fn3, runFn2, runFn3)
-import Intl.Common.StringDateTimeFormat (StringDateTimeFormat(..))
-import Intl.Common.LocaleMatcher (LocaleMatcher(..))
-import Intl.Common.LocaleTag (LocaleTag(..), localesToForeign)
-import Intl.Common.LocaleTag as LocaleTag
-import Intl.Common.NumericOutput (NumericOutput(..))
-import Intl.Common.TimeUnit (TimeUnit(..))
+import Data.List.NonEmpty (toUnfoldable) as NEL
 import Data.Maybe (Maybe(..))
 import Data.Newtype (unwrap, wrap)
+import Data.String (joinWith)
 import Data.Time (Time)
 import Data.Time as Time
 import Effect (Effect)
 import Effect as Effect
 import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn4, runEffectFn1, runEffectFn2, runEffectFn4)
-import Foreign (Foreign)
+import Foreign (Foreign, renderForeignError)
+import Intl.Common.FormattedDateParts (FormattedDateParts)
+import Intl.Common.LocaleMatcher (LocaleMatcher(..))
+import Intl.Common.LocaleTag (LocaleTag(..), localesToForeign)
+import Intl.Common.LocaleTag as LocaleTag
+import Intl.Common.NumericOutput (NumericOutput(..))
+import Intl.Common.StringDateTimeFormat (StringDateTimeFormat(..))
+import Intl.Common.TimeUnit (TimeUnit(..))
 import Option as Option
+import Partial.Unsafe (unsafeCrashWith)
 import Prim (kind Type, Array, Number, Record, String)
 import Simple.JSON as JSON
 
@@ -139,13 +144,15 @@ format ∷ Number → TimeUnit → RelativeTimeFormat → String
 format value unit = runFn3 formatImpl value (JSON.write unit)
 
 -- TODO: wrong output
-foreign import formatToPartsImpl ∷ Fn3 Number Foreign RelativeTimeFormat (Array String)
+foreign import formatToPartsImpl ∷ Fn3 Number Foreign RelativeTimeFormat Foreign
 
--- TODO: wrong output
 -- | Returns an `Array` of objects representing the relative time format in
 -- | parts that can be used for custom locale-aware formatting.
-formatToParts ∷ Number → TimeUnit → RelativeTimeFormat → Array String
-formatToParts value unit = runFn3 formatToPartsImpl value (JSON.write unit)
+formatToParts ∷ Number → TimeUnit → RelativeTimeFormat → Array FormattedDateParts
+formatToParts value timeUnit =
+  runFn3 formatToPartsImpl value (JSON.write timeUnit)
+    >>> JSON.read
+    >>> either (NEL.toUnfoldable >>> map renderForeignError >>> joinWith ", " >>> unsafeCrashWith) identity
 
 foreign import resolvedOptionsImpl ∷ EffectFn1 RelativeTimeFormat Foreign
 

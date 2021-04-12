@@ -3,10 +3,12 @@ module Test.DateTimeFormat where
 import Prelude
 import Data.Either (isLeft, isRight)
 import Data.JSDate as JSDate
+import Data.Variant as V
 import Effect (Effect)
 import Effect.Console (log)
 import Effect.Exception (try)
 import Intl.Common.Calendar as Calendar
+import Intl.Common.FormattedDateParts as FDP
 import Intl.Common.LocaleTag (LocaleTag(..))
 import Intl.Common.MonthDateTimeFormat as MonthDateTimeFormat
 import Intl.Common.NumberingSystem as NumberingSystem
@@ -58,6 +60,23 @@ main = do
         DateTimeFormat.format ripGeorgeFloyd loLANumbersISOYearsFormatter
           `shouldEqual`
             "ຈັນ, ໒໕ ພ.ພ. ໒໐໒໐, ໒໕:໐໐"
+  log "DateTimeFormat formatToParts"
+    *> do
+        thTHBaseFormatter ←
+          DateTimeFormat.create thTHLocale
+            { numberingSystem: NumberingSystem.Thai
+            , year: NumericDateTimeFormat.Numeric
+            , month: MonthDateTimeFormat.from StringDateTimeFormat.Long
+            , day: NumericDateTimeFormat.Numeric
+            }
+        DateTimeFormat.formatToParts ripGeorgeFloyd thTHBaseFormatter
+          `shouldEqual`
+            [ V.inj FDP._day "๒๕"
+            , V.inj FDP._literal " "
+            , V.inj FDP._month "พฤษภาคม"
+            , V.inj FDP._literal " "
+            , V.inj FDP._year "๒๕๖๓"
+            ]
   ----------------------------------------------------------------------------
   where
   enUSLocale ∷ Array LocaleTag
