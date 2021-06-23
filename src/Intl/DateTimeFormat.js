@@ -17,14 +17,18 @@ exports.formatToPartsImpl = function(date, formatter) {
   return formatter.formatToParts(date);
 };
 
+/*
 exports.resolvedOptionsImpl = function(formatter) {
   return formatter.resolvedOptions();
 };
+*/
 
 exports.formatRangeImpl = function(startDate, endDate, formatter) {
   return formatter.formatRange(startDate, endDate);
 };
 
+/*
 exports.formatRangeToPartsImpl = function(startDate, endDate, formatter) {
   return formatter.formatToRangeParts(startDate, endDate);
 };
+*/

@@ -4,9 +4,9 @@ import Prelude
 import Control.Alt ((<|>))
 import Data.Either (Either(..), either)
 import Data.Generic.Rep (class Generic)
-import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype, unwrap, wrap)
+import Data.Show.Generic (genericShow)
 import Foreign (F, Foreign, ForeignError(..), fail, readString)
 import Intl.Common.NumericDateTimeFormat (NumericDateTimeFormat(..))
 import Intl.Common.NumericDateTimeFormat as NumericDateTimeFormat

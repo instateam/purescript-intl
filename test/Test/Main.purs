@@ -12,15 +12,9 @@ import Data.Maybe (Maybe(..), isJust, isNothing)
 import Data.Symbol (SProxy(..))
 import Data.Time (Time(..))
 import Data.Variant (inj)
-import Intl.Common.LocaleTag (LocaleTag(..))
-import Intl.Common.LocaleTag as LocaleTag
-import Intl.DateTimeFormat (DateTimeFormat)
-import Intl.DateTimeFormat as DateTimeFormat
 import Intl.DateTimeFormat.Class (class FormatComponent, FormatComponentRecord(..))
 -- import Intl.DateTimeFormat.Generic (genericFormatComponent)
 import Effect (Effect)
-import Foreign (F, renderForeignError)
-import Partial.Unsafe (unsafeCrashWith, unsafePartial)
 import Test.DateTimeFormat as Test.DateTimeFormat
 import Test.RelativeTimeFormat as Test.RelativeTimeFormat
 

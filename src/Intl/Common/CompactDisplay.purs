@@ -1,7 +1,9 @@
 module Intl.Common.CompactDisplay where
 
 import Prelude
+import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..))
+import Data.Show.Generic (genericShow)
 import Foreign (F, Foreign, ForeignError(..), fail, readString)
 import Simple.JSON as JSON
 
@@ -12,11 +14,10 @@ data CompactDisplay
 
 derive instance eqCompactDisplay ∷ Eq CompactDisplay
 
+derive instance genericCompactDisplay ∷ Generic CompactDisplay _
+
 instance showCompactDisplay ∷ Show CompactDisplay where
-  show = case _ of
-    Long → "Long"
-    Short → "Short"
-    Narrow → "Narrow"
+  show = genericShow
 
 print ∷ CompactDisplay → String
 print = case _ of

@@ -2,9 +2,9 @@ module Intl.Common.HourCycle where
 
 import Prelude
 import Data.Generic.Rep (class Generic)
-import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(..))
-import Foreign (F, Foreign, ForeignError(..), fail, readString)
+import Data.Show.Generic (genericShow)
+import Foreign (F, ForeignError(..), fail, readString)
 import Simple.JSON as JSON
 
 data HourCycle

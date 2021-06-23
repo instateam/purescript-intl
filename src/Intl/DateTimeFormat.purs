@@ -6,6 +6,7 @@ module Intl.DateTimeFormat
   , supportedLocalesOf
   , SupportedLocalesOfOptions
   , format
+  , formatDateTime
   , formatToParts
   , formatRange
   --, formatRangeToParts
@@ -20,32 +21,30 @@ module Intl.DateTimeFormat
 
 import Prelude
 import Data.DateTime (DateTime)
-import Data.Either (Either(..), either)
+import Data.Either (either)
 import Data.Function.Uncurried (Fn2, Fn3, runFn2, runFn3)
 import Data.JSDate (JSDate)
 import Data.JSDate as JSDate
 import Data.List.NonEmpty (toUnfoldable) as NEL
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe)
 import Data.Newtype (wrap, unwrap)
 import Data.String (joinWith)
 import Effect (Effect)
-import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn4, runEffectFn1, runEffectFn2, runEffectFn4)
+import Effect.Uncurried (EffectFn2, runEffectFn2)
 import Foreign (Foreign, renderForeignError)
 import Intl.Common.Calendar (Calendar(..))
 import Intl.Common.FormattedDateParts (FormattedDateParts)
 import Intl.Common.HourCycle (HourCycle(..))
-import Intl.Common.LocaleMatcher (LocaleMatcher(..))
+import Intl.Common.LocaleMatcher (LocaleMatcher)
 import Intl.Common.LocaleTag (LocaleTag(..), localesToForeign)
 import Intl.Common.LocaleTag as LocaleTag
-import Intl.Common.MonthDateTimeFormat (MonthDateTimeFormat(..))
+import Intl.Common.MonthDateTimeFormat (MonthDateTimeFormat)
 import Intl.Common.NumberingSystem (NumberingSystem(..))
 import Intl.Common.NumericDateTimeFormat (NumericDateTimeFormat(..))
 import Intl.Common.StringDateTimeFormat (StringDateTimeFormat(..))
 import Intl.Common.TimeZone (TimeZone(..), TimeZoneNameFormat(..))
 import Option as Option
 import Partial.Unsafe (unsafeCrashWith)
-import Prim (kind Type, Array, Boolean, Int, Record, String)
-import Simple.JSON (class WriteForeign, writeImpl)
 import Simple.JSON as JSON
 
 foreign import data DateTimeFormat ∷ Type
@@ -170,6 +169,7 @@ formatToParts date =
 -- resolvedOptions
 foreign import formatRangeImpl ∷ Fn3 JSDate JSDate DateTimeFormat String
 
+--
 -- | This method receives two `JSDate`s and formats the date range in the most
 -- | concise way based on the locale and options provided when instantiating
 -- | `DateTimeFormat`.

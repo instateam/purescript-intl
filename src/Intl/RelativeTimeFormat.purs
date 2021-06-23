@@ -7,6 +7,7 @@ module Intl.RelativeTimeFormat
   , SupportedLocalesOfOptions
   , format
   , formatToParts
+  , resolvedOptions
   , module Intl.Common.StringDateTimeFormat
   , module Intl.Common.LocaleMatcher
   , module Intl.Common.LocaleTag
@@ -37,7 +38,6 @@ import Intl.Common.StringDateTimeFormat (StringDateTimeFormat(..))
 import Intl.Common.TimeUnit (TimeUnit(..))
 import Option as Option
 import Partial.Unsafe (unsafeCrashWith)
-import Prim (kind Type, Array, Number, Record, String)
 import Simple.JSON as JSON
 
 foreign import data RelativeTimeFormat ∷ Type

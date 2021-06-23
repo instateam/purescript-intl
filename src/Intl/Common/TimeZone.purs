@@ -2,9 +2,9 @@ module Intl.Common.TimeZone where
 
 import Prelude
 import Data.Generic.Rep (class Generic)
-import Data.Generic.Rep.Show (genericShow)
 import Data.Newtype (class Newtype, unwrap, wrap)
 import Data.Maybe (Maybe(..))
+import Data.Show.Generic (genericShow)
 import Foreign (F, Foreign, ForeignError(..), fail, readString)
 import Simple.JSON as JSON
 
